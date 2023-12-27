@@ -59,3 +59,7 @@ export const addUserService = (data) => {
         "role": data.role,
     }
 }
+
+export const updateUserService = (id, roleid) => {
+    return request.put("/user?id=" + id + "&roleid=" + roleid);
+}

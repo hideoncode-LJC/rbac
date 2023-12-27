@@ -16,7 +16,7 @@ func NewMysqlConfig() *MysqlConfig {
 
 	//获取Mysql配置
 
-	viper.SetConfigFile("/Users/hideoncode/Documents/RBAC/config/config.yaml")
+	viper.SetConfigFile("/Users/hideoncode/Documents/RBAC/server/config/config.yaml")
 
 
 	err := viper.ReadInConfig()

@@ -5,8 +5,9 @@ import (
 	"server/model"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"fmt"
+
+	"github.com/gin-gonic/gin"
 )
 
 // 获取所有的角色
@@ -81,42 +82,45 @@ func AddUser(ctx *gin.Context) {
 
 func UpdateUser(ctx *gin.Context) {
 	// 1. 获取数据
-	id := ctx.PostForm("id")
-	username := ctx.PostForm("username")
-	password := ctx.PostForm("password")
-	email := ctx.PostForm("email")
-	rolename := ctx.PostForm("rolename")
+	param1, _ := strconv.Atoi(ctx.Query("id"))
+	id := uint(param1)
+	param2, _ := strconv.Atoi(ctx.Query("roleid"))
+	roleid := uint(param2)
 
 	// 2. 获取数据库连接
-	db := db.GetDatabaseConnection()
+	conn := db.GetDatabaseConnection()
+	defer db.CloseDatabaseConnection(conn)
 
-	// 3. 根据角色名查询该角色是否存在
+	// 3. 开始更新
+
 	var providedRole model.Role
-	if err := db.Where("name = ?", rolename).First(&providedRole).Error; err != nil {
-		ctx.JSON(500, gin.H{
-			"code": 1, 
-			"error": err,
-		})
-		return 
+	if err := conn.Where("id = ?", roleid).First(&providedRole).Error; err != nil {
+		Response(ctx, 200, 1, err.Error(), "")
 	}
 	// 4. 更新数据
-	if err := db.Model(&model.User{}).Where("id = ?", id).Updates(map[string]interface{}{
-		"username": username,
-		"password": password,
-		"email": email,
-		"role_id": providedRole.ID,
+	if err := conn.Model(&model.User{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"role_id": roleid,
 	}).Error ; err != nil {
-		ctx.JSON(500, gin.H{
-			"code": 1, 
-			"error": err,
-		})
+		Response(ctx, 200, 1, err.Error(), "")
 	} else {
-		ctx.JSON(200, gin.H{
-			"code": 0, 
-			"msg": "更新成功",
-		})
+		Response(ctx, 200, 0, "更新成功", "")
 	}
 }
+
+// func UpdateUser(ctx *gin.Context) {
+// 	// 1. 获取数据
+// 	id := ctx.PostForm("id")
+// 	username := ctx.PostForm("username")
+// 	password := ctx.PostForm("password")
+// 	email := ctx.PostForm("email")
+// 	rolename := ctx.PostForm("rolename")
+
+// 	// 2. 获取数据库连接
+// 	db := db.GetDatabaseConnection()
+
+// 	// 3. 根据角色名查询该角色是否存在
+
+// }
 
 func DeleteUser(ctx *gin.Context) {
 
