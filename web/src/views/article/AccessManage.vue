@@ -5,16 +5,21 @@ import { QuillEditor } from '@vueup/vue-quill'; // content内容编写框导入
 import '@vueup/vue-quill/dist/vue-quill.snow.css'; // content 内容编写框导入样式
 import { ElMessageBox } from 'element-plus'; // 导入删除框 根据选择进行提示
 import { onMounted, ref} from 'vue'; // 导入响应式数据和挂载函数
-import { accessesListService, addAccessService, deleteAccessService } from '@/api/access.js' // 导入函数
+import { accessListService, addAccessService, deleteAccessService } from '@/api/access.js' // 导入函数
 const title = ref(''); // 设置添加权限、更改权限的标题显示
+
 const submitTitle = ref(''); // 设置添加权限、更改权限的按钮显示
+
 const accesses = ref([]); // 定义接收权限的数据
+
 const drawerVisible = ref(false); // 设置添加权限、更改权限的抽屉显示
+
 const accessModel = ref({
     "id": '',
     "title": '',
     "content":'',
 }) // 定义添加权限、修改权限的数据模型
+
 const accessRules = {
     title: [
         { required: true, message: '请输入文章标题', trigger: 'blur' },
@@ -32,9 +37,11 @@ const clearAccessModel = () => {
 const clearAccesses = () => {
     accesses.value = [];
 }
+
+
 // 挂在函数 获取收据
 onMounted(() => {
-  accessesList();
+  accessList();
 });
 // 控制抽屉的显示
 const showDrawer = (drawerTitle, row) => {
@@ -52,9 +59,9 @@ const showDrawer = (drawerTitle, row) => {
     console.log("accessModel = ", accessModel.value)
 }
 // 获取权限
-const accessesList = async() => {
+const accessList = async() => {
     clearAccesses(); // 先清空数据
-    let result = await accessesListService(); // 获取权限数据
+    let result = await accessListService(0, 0); // 获取权限数据
     for (let i = 0 ; i < result.data.length ; i ++ ) {
         let access = {
             "id": result.data[i].ID,
@@ -71,9 +78,11 @@ const addAccess = async() => {
     ElMessage.success(result.msg ? result.msg : '添加权限成功');
     // 获取所有角色
     if (result.code === 0) {
-        accessesList();
+        accessList(0);
         // 关闭窗口
         drawerVisible.value = false;
+        // 触发事件通知Layout.vue刷新左侧菜单
+        window.dispatchEvent(new Event('refreshMenu'));
     } 
 }
 // 更新权限
@@ -82,7 +91,7 @@ const updateAccess = async() => {
     // 显示返回信息
     ElMessage.success(result.msg ? result.msg : '修改权限成功');
     // 获取所有角色
-    accessesList();
+    accessList();
     // 关闭窗口
     drawerVisible.value = false;
 }
@@ -101,12 +110,13 @@ const deleteAccess = (row) => {
         .then(async () => {
             //调用接口
             let result = await deleteAccessService(row.id);
+            console.log('删除权限的返回信息', result.data);
             ElMessage({
                 type: 'success',
                 message: '删除成功',
             })
             //刷新列表
-            accessesList();
+            accessList(0);
         })
         .catch(() => {
             ElMessage({

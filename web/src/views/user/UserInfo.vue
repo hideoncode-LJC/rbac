@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import useUserInfoStore from '@/stores/userInfo.js'
-const userInfoStore = useUserInfoStore();
+import { useUserStore } from '@/stores/user.js'
+const userInfoStore = useUserStore();
 
 const userInfo = ref({...userInfoStore.info})
 const rules = {

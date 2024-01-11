@@ -1,19 +1,33 @@
 <script setup>
-import { User, Lock } from '@element-plus/icons-vue' // 导入element图标库
+import { User, Lock, Message } from '@element-plus/icons-vue' // 导入element图标库
 import { ref } from 'vue' // 导入vue响应式数据
 import { ElMessage } from 'element-plus' // 导入消息窗口显示模块
 import { userRegisterService, userLoginService} from '@/api/user.js' // 导入函数
-import {useTokenStore} from '@/stores/token.js' // 导入token
-import {useRouter} from 'vue-router' // 导入router
+import { useRouter } from 'vue-router' // 导入router
+// 导入token相关信息
+import { useAdminStore } from '@/stores/admin.js'
+const adminStore = useAdminStore();
+import { useUserStore } from '@/stores/user.js'
+const userStore = useUserStore();
+import { useAccessStore } from '@/stores/access.js'
+const accessStore = useAccessStore();
 const isRegister = ref(false) //控制注册与登录表单的显示，false显示为登录 true显示为注册
 //定义数据模型
 const registerData = ref({
     username: '',
     password: '',
-    rePassword: ''
-})
+    rePassword: '',
+    email: '',
+});
+//定义函数,清空数据模型的数据
+const clearRegisterData = ()=>{
+    registerData.value={
+        username:'',
+        password:'',
+        rePassword:''
+    }
+}
 const router = useRouter() // 获取路由
-const tokenStore = useTokenStore(); // 获取token
 //校验密码的函数
 const checkRePassword = (rule, value, callback) => {
     if (value === '') {
@@ -42,26 +56,39 @@ const rules = {
 const register = async () => {
     let result = await userRegisterService(registerData.value);
     ElMessage.success(result.msg ? result.msg : '注册成功')
+    // 如果注册成功，则跳转界面
     if (result.code === 0) {
         isRegister.value = false
     }
 }
-const login =async ()=>{
+
+const login = async ()=>{
     //调用接口,完成登录
    let result =  await userLoginService(registerData.value);
    ElMessage.success(result.msg ? result.msg : '登录成功')
    //把得到的token存储到pinia中
-   tokenStore.setToken(result.data)
-   //跳转到首页 路由完成跳转
+   console.log('登录成功返回的结果为', result.data);
+   let data = result.data;
+   if (data.admin) {
+    // 如果登录的用户是管理员
+    adminStore.setToken(data);
+   } else {
+    userStore.setToken(data);
+    // 加载用户权限
+    initAccess();
+   }
+   console.log('adminToken = ', adminStore.adminToken);
+   console.log('userToken = ', userStore.userToken);
    router.push('/')
 }
-//定义函数,清空数据模型的数据
-const clearRegisterData = ()=>{
-    registerData.value={
-        username:'',
-        password:'',
-        rePassword:''
-    }
+
+import { accessListService } from '@/api/access.js'
+
+const initAccess = async() => {
+    let userToken = userStore.userToken;
+    let result = await accessListService(userToken.roleid, 0);
+    accessStore.setToken(result.data);
+    console.log('accessToken = ', accessStore.accessToken);
 }
 </script>
 
@@ -84,6 +111,10 @@ const clearRegisterData = ()=>{
                 <el-form-item prop="rePassword">
                     <el-input :prefix-icon="Lock" type="password" placeholder="请输入再次密码"
                         v-model="registerData.rePassword"></el-input>
+                </el-form-item>
+                <el-form-item prop="eamil">
+                    <el-input :prefix-icon="Message" placeholder="请输入邮箱"
+                        v-model="registerData.email"></el-input>
                 </el-form-item>
                 <!-- 注册按钮 -->
                 <el-form-item>
@@ -135,8 +166,8 @@ const clearRegisterData = ()=>{
     background-color: #fff;
 
     .bg {
-        background: url('@/assets/logo2.png') no-repeat 60% center / 240px auto,
-            url('@/assets/login_bg.jpg') no-repeat center / cover;
+        // background: url('@/assets/logo2.png') no-repeat 60% center / 240px auto,
+        background: url('@/assets/login_bg.jpg') no-repeat center / cover;
         border-radius: 0 20px 20px 0;
     }
 

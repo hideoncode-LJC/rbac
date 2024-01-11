@@ -20,7 +20,7 @@ const routes = [
         component: LayoutVue,
         redirect:'/index', 
         children: [
-            { path: '/index', component: IndexVue },
+            { path: '/index', component: IndexVue, props: true },
             { path: '/article/user', component: UserManageVue },
             { path: '/article/role', component: RoleManageVue },
             { path: '/article/access', component: AccessManageVue },

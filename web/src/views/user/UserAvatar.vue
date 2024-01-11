@@ -6,8 +6,8 @@ const uploadRef = ref()
 import {useTokenStore} from '@/stores/token.js'
 const tokenStore = useTokenStore();
 
-import useUserInfoStore from '@/stores/userInfo.js'
-const userInfoStore = useUserInfoStore();
+import {useUserStore} from '@/stores/user.js'
+const userInfoStore = useUserStore();
 
 //用户头像地址
 const imgUrl= ref(userInfoStore.info.userPic)

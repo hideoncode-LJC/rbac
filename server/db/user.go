@@ -1,6 +1,7 @@
 package db
 
 import (
+	"server/log"
 	"server/model"
 
 	"gorm.io/gorm"
@@ -61,11 +62,17 @@ func GetUserCount(db *gorm.DB) int {
 	return len(users)
 }
 
-func GetUserByOption(db *gorm.DB, username, password string, user *model.User) error {
-	err := db.Preload("Role").Where("username = ? AND password = ?", username, password).First(user).Error
-	return err
+func GetUserByOption(db *gorm.DB, username, password string) (model.User, error) {
+	var user model.User
+	err := db.Preload("Role").Where("username = ? AND password = ?", username, password).First(&user).Error
+	return user, err
 }
 
+func FindUser(db *gorm.DB, username, password string) (model.User, error) {
+	var user model.User
+	err := db.Preload("Role").Where("username = ?", username).First(&user).Error
+	return user, err
+}
 
 // func AddUser(db *gorm.DB, user model.User) error {
 
@@ -75,3 +82,19 @@ func GetUserByOption(db *gorm.DB, username, password string, user *model.User) e
 
 // }
 
+
+func UpdateUserRole(db *gorm.DB, roleID uint) {
+	// 先找到普通用户的roleID
+	var role model.Role
+	if err := db.Where("name = ?", "普通用户").First(&role).Error; err != nil {
+		log.Info("根据角色名查询角色失败")
+	}
+	// 更新roleID
+	result := db.
+	Model(&model.User{}).
+	Where("role_id = ?", roleID).
+	Update("role_id", role.ID)
+
+	log.Info("更新角色ID的影响行数为")
+	log.Info(result.RowsAffected)
+}

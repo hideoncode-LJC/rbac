@@ -8,7 +8,6 @@ import {ElMessageBox} from 'element-plus';
 import { deleteUserService, updateUserService } from '@/api/user.js';
 import { roleListService } from '@/api/role.js'
 import {ElMessage} from 'element-plus'
-// =============================== 加载token====================================
 const tokenStore = useTokenStore(); 
 const token = tokenStore.token
 // =============================== 查询所有用户代码 Start ====================================
@@ -58,6 +57,11 @@ const option = ref({
     "username": '',
     "rolename": '',
 })
+
+const handleOptionChange = (value) => {
+    console.log(option.value.rolename)
+    option.value.rolename = value.rolename;
+}
 // 清除查询用户条件
 const clearUserByOption = () => {
     option.value.username = '';
@@ -120,6 +124,7 @@ const updateUser = async() => {
     let result = await updateUserService(userModel.value.id, userModel.value.roleid);
     ElMessage.success(result.msg ? result.msg : "success");
     dialogVisible.value = false
+    userList();
 }
 
 
@@ -208,8 +213,14 @@ roles存储所有角色的信息
                 <el-input placeholder="请输入用户名" v-model="option.username"></el-input>
             </el-form-item>
             <el-form-item label="角色名">
-                <el-select placeholder="请选择" v-model="option.rolename">
-                    <el-option v-for="role in roles" :key="role.id" :label="role.rolename" :value="role"></el-option>
+                <el-select placeholder="请选择" v-model="option.rolename" @change="handleOptionChange">
+                    <el-option 
+                    v-for="role in roles" 
+                    :key="role.id" 
+                    :label="role.rolename" 
+                    :value="role"
+                    >
+                </el-option>
                 </el-select>
             </el-form-item>
             <el-form-item>

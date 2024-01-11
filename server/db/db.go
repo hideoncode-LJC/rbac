@@ -44,6 +44,7 @@ func GetDatabaseConnection() *gorm.DB {
 	checkAndCreateTable(db, &model.User{})
 	checkAndCreateTable(db, &model.Access{})
 	checkAndCreateTable(db, &model.RoleAccess{})
+	checkAndCreateTable(db, &model.RoleInheritance{})
 	
 	return db
 }

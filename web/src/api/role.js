@@ -1,29 +1,21 @@
 import request from '@/utils/request.js'
 
-
-// 获取所有的user数据
 export const roleListService = () => {
-    return request.get("/role")
+    return request.get("/role");
 }
 
-/*添加角色函数
-RoleModel {
-    roleName: '',\
-    accesses: [],
+export const addRoleService = (data) => {
+    return request.post("/role", data);
 }
 
-*/
+export const updateRoleService = (id, data) => {
+    return request.put("/role?id=" + id, data);
+}
 
-export const addRoleService = (addRoleData) => {
-    // const params = new URLSearchParams();
-    // console.log(addRoleData.roleName)
-    // params.append("roleName", addRoleData.RoleName)
-    // params.append("accesses", addRoleData.accesses)
-    // console.log(params)
-    const requestData = {
-        "roleName": addRoleData.roleName,
-        "accesses": addRoleData.accesses
-    }
-    console.log(requestData)
-    return request.post("/role", requestData)
+export const deleteRoleService = (id) => {
+    return request.delete("/role?id=" + id);
+}
+
+export const childRoleListSerivice = (id) => {
+    return request.get("/child?id=" + id);
 }

@@ -32,6 +32,12 @@ type Access struct {
 	Roles []Role `gorm:"many2many:role_accesses;foreignKey:ID;associationForeignKey:ID"`
 }
 
+type RoleInheritance struct {
+	gorm.Model
+	ParentID uint 
+	ChildID uint
+}
+
 // RoleAccess 表
 type RoleAccess struct {
 	RoleID  uint // 角色ID
@@ -70,15 +76,17 @@ func NewAccess(title, content string) *Access {
 }
 
 type AccessWithLevel struct {
-	Access Access
-	Level int
+	ID uint 
+	Title string `json:"title"`// 界面的名字 
+	Content string `json:"content"`// 界面的内容
+	Level int `json:"level"`
 }
 
 type AddRoleAccess struct {
 	ID uint `json:"id"`
 	Title string `json:"title"`
 	Content string `json:"content"`
-	Level []string `json:"level"`
+	Level int `json:"level"`
 }
 
 type ResRole struct {
@@ -88,8 +96,9 @@ type ResRole struct {
 }
 
 type AddRoleModel struct {
-	RoleName string `json:"roleName"`
+	RoleName string `json:"rolename"`
 	Accesses []AddRoleAccess `json:"accesses"`
+	ChildID []int `json:"childrole"`
 }
 
 type AddAccessModel struct {
